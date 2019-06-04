@@ -1,12 +1,13 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"github.com/speps/go-hashids"
 	"os"
 	"strings"
 )
+
+var host = "lnk.my"
 
 var m map[string]string
 
@@ -26,8 +27,7 @@ func (u Url) Shorten() string {
 	h, _ := hashids.NewWithData(hd)
 	e, _ := h.Encode([]int{len(u.Value)})
 	part := strings.ToLower(e)
-	path := strings.Split(u.Value, "/")
-	shortUrl := path[0] + "/" + part
+	shortUrl := host + "/" + part
 
 	m[shortUrl] = u.Value
 	return shortUrl
@@ -41,19 +41,14 @@ func (u Url) Resolve() string {
 func main() {
 	m = make(map[string]string)
 
-	scanner := bufio.NewScanner(os.Stdin)
 	var text string
 	for text != "q" {  // break the loop if text == "q"
 		fmt.Print("Generate short URL (enter - 1), if check long URL (enter - 2): ")
-		scanner.Scan()
-		text = scanner.Text()
+		fmt.Fscan(os.Stdin, &text)
 
 		if text == "1"  {
 			fmt.Print("Enter your long URL (without http(s)://): ")
-			scanner.Scan()
-			text = scanner.Text()
-			//url := Url{text}
-			//url.Shorten(url.Value)
+			fmt.Fscan(os.Stdin, &text)
 			var s Shortener = Url{text}
 			s.Shorten()
 			fmt.Println("map:", m)
@@ -61,10 +56,7 @@ func main() {
 
 		if text == "2"  {
 			fmt.Print("Enter your short URL (without http(s)://): ")
-			scanner.Scan()
-			text = scanner.Text()
-			//url := Url{text}
-			//fmt.Println(url.Resolve(url.Value))
+			fmt.Fscan(os.Stdin, &text)
 			var s Shortener = Url{text}
 			fmt.Println(s.Resolve())
 		}
